@@ -1,5 +1,5 @@
 const express = require('express');
-const { param } = require('express-validator/check');
+const { param } = require('express-validator');
 
 const { catchAsyncErrors } = require('../helpers/errorHandlers');
 const { getData, getSingleDoc } = require('../controllers/testController');
