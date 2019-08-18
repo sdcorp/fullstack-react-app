@@ -1,163 +1,333 @@
 {
-  "swagger": "2.0",
+  "openapi": "3.0.1",
   "info": {
-    "version": "1.0.0",
-    "title": "The sample application API",
-    "description": "The swagger definition",
-    "license": {
-      "name": "MIT",
-      "url": "https://opensource.org/licenses/MIT"
-    }
+    "title": "MERN-stack Swagger",
+    "version": "1.0.0"
   },
-  "host": "localhost:8000",
-  "basePath": "/api/v1",
+  "servers": [
+    {
+      "url": "http://localhost:8000/api/v1"
+    },
+    {
+      "url": "https://fullstack-reactapp.herokuapp.com/api/v1"
+    }
+  ],
   "tags": [
     {
-      "name": "Users",
-      "description": "API for users in the system"
+      "name": "Authorization"
+    },
+    {
+      "name": "Test",
+      "description": "Test routes"
     }
   ],
-  "schemes": [
-    "http"
-  ],
-  "consumes": [
-    "application/json"
-  ],
-  "produces": [
-    "application/json"
-  ],
   "paths": {
-    "/users": {
+    "/auth/register": {
       "post": {
-        "tags": [ "Users" ],
-        "description": "Create new user in system",
-        "parameters": [
-          {
-            "name": "user",
-            "in": "body",
-            "description": "User that we want to create",
-            "schema": {
-              "$ref": "#/definitions/User"
+        "tags": ["Authorization"],
+        "summary": "Create user in the system",
+        "operationId": "getRegUser",
+        "requestBody": {
+          "description": "Created user object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
             }
-          }
-        ],
-        "produces": [
-          "application/json"
-        ],
+          },
+          "required": true
+        },
         "responses": {
           "200": {
-            "description": "New user is created",
-            "schema": {
-              "$ref": "#/definitions/User"
-            }
-          }
-        }
-      },
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "Get all users in system",
-        "responses": {
-          "200": {
-            "description": "OK",
-            "schema": {
-              "$ref": "#/definitions/Users"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/User"
+                }
+              }
             }
           }
         }
       }
     },
-    "/users/{userId}": {
-      "parameters": [
-        {
-          "name": "userId",
-          "in": "path",
-          "required": true,
-          "description": "ID of user that we want to find",
-          "type": "string"
-        }
-      ],
-      "get": {
-        "tags": [
-          "Users"
-        ],
-        "summary": "Get user with given ID",
+    "/auth/login": {
+      "post": {
+        "tags": ["Authorization"],
+        "summary": "Logs user into the system",
+        "operationId": "loginUser",
+        "requestBody": {
+          "description": "Created user object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/User"
+              }
+            }
+          },
+          "required": true
+        },
         "responses": {
           "200": {
-            "description": "User is found",
-            "schema": {
-              "$ref": "#/definitions/User"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "token": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Invalid email/password supplied",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/auth/checkToken": {
+      "get": {
+        "tags": ["Authorization"],
+        "summary": "Check if token is valid",
+        "operationId": "checkToken",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "authenticated": {
+                      "type": "boolean"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/test/documents": {
+      "get": {
+        "tags": ["Test"],
+        "summary": "Get all documents",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "getAllDocuments",
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/Document"
+                  }
+                }
+              }
             }
           }
         }
       },
-      "delete": {
-        "summary": "Delete user with given ID",
-        "tags": [
-          "Users"
+      "post": {
+        "tags": ["Test"],
+        "summary": "Create document",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "createDocument",
+        "requestBody": {
+          "description": "Created document object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Document"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "successful operation",
+            "content": {}
+          }
+        }
+      }
+    },
+    "/test/document/{id}": {
+      "get": {
+        "tags": ["Test"],
+        "summary": "Get single document",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "getSingleDocument",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of doc that need to be returned",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
         ],
         "responses": {
           "200": {
-            "description": "User is deleted",
-            "schema": {
-              "$ref": "#/definitions/User"
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
             }
           }
         }
       },
       "put": {
-        "summary": "Update user with give ID",
-        "tags": [
-          "Users"
-        ],
+        "tags": ["Test"],
+        "summary": "Update single document",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "updateSingleDocument",
         "parameters": [
           {
-            "name": "user",
-            "in": "body",
-            "description": "User with new values of properties",
+            "name": "id",
+            "in": "path",
+            "description": "id of doc that need to be updated",
+            "required": true,
             "schema": {
-              "$ref": "#/definitions/User"
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "description": "Updated document object",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Document"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Document"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
+      },
+      "delete": {
+        "tags": ["Test"],
+        "summary": "Delete single document",
+        "description": "This can only be done by the logged in user.",
+        "operationId": "deleteSingleDocument",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id of doc that need to be deleted",
+            "required": true,
+            "schema": {
+              "type": "string"
             }
           }
         ],
         "responses": {
           "200": {
-            "description": "User is updated",
-            "schema": {
-              "$ref": "#/definitions/User"
-            }
+            "description": "successful operation",
+            "content": {}
           }
-        }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ]
       }
     }
   },
-  "definitions": {
-    "User": {
-      "required": [
-        "email",
-        "_id"
-      ],
-      "properties": {
-        "_id": {
-          "type": "string",
-          "uniqueItems": true
+  "components": {
+    "schemas": {
+      "Document": {
+        "type": "object",
+        "properties": {
+          "uniqId": {
+            "type": "string"
+          },
+          "documentName": {
+            "type": "string"
+          }
+        }
+      },
+      "User": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string"
+          }
+        }
+      },
+      "Tag": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "name": {
+            "type": "string"
+          }
         },
-        "email": {
-          "type": "string",
-          "uniqueItems": true
-        },
-        "lastName": {
-          "type": "string"
-        },
-        "firstName": {
-          "type": "string"
+        "xml": {
+          "name": "Tag"
+        }
+      },
+      "ApiResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "type": {
+            "type": "string"
+          },
+          "message": {
+            "type": "string"
+          }
         }
       }
     },
-    "Users": {
-      "type": "array",
-      "$ref": "#/definitions/User"
+    "securitySchemes": {
+      "bearerAuth": {
+        "description": "Basic JWT authorization.",
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
     }
   }
 }

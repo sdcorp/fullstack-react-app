@@ -16,7 +16,7 @@ class API extends Component {
 
   fetchData = async () => {
     try {
-      const { data } = await axios.get('/api/v1/testroutes/test');
+      const { data } = await axios.get('/api/v1/test/documents');
       return data;
     } catch (error) {
       console.error(error);
