@@ -1,3 +1,4 @@
+const HttpError = require('http-errors');
 const TestModel = require('../models/Test');
 const { catchExpressValidatorErrors } = require('../helpers/customValidators');
 const { checkIfExist } = require('../helpers/customHandlers');
@@ -7,9 +8,7 @@ const { checkIfExist } = require('../helpers/customHandlers');
 exports.getData = async (req, res) => {
   const docs = await TestModel.find();
   if (docs.length === 0) {
-    const err = new Error('No Docs in DB');
-    err.status = 404;
-    throw err;
+    throw new HttpError[404]('No Docs in DB');
   }
   res.json({ data: req.user, docs });
 };
@@ -18,7 +17,7 @@ exports.getSingleDoc = async (req, res) => {
   // validation params.id
   catchExpressValidatorErrors(req);
   const { id } = req.params;
-  const doc = await checkIfExist(id, TestModel);
+  const doc = await checkIfExist({ id }, TestModel);
   res.status(200).json({ doc });
 };
 
@@ -29,9 +28,7 @@ exports.postData = async (req, res) => {
   // check if doc exist
   const doc = await TestModel.findOne({ uniqId });
   if (doc) {
-    const err = new Error('Doc with this ID already exists');
-    err.status = 400;
-    throw err;
+    throw new HttpError[409]('Doc with this ID already exists');
   }
   // add new doc to DB
   const newDoc = new TestModel({ uniqId, documentName });
@@ -45,7 +42,7 @@ exports.editSingleDoc = async (req, res) => {
   const { id } = req.params;
   const { documentName } = req.body;
   // check if doc in Model
-  await checkIfExist(id, TestModel);
+  await checkIfExist({ value: id }, TestModel);
   // update the doc
   const updatedDoc = await TestModel.findByIdAndUpdate(id, { $set: { documentName } }, { new: true });
   res.status(200).json({ msg: 'Doc updated successfully', doc: updatedDoc });
@@ -55,7 +52,7 @@ exports.deleteSingleDoc = async (req, res) => {
   // validation params id
   catchExpressValidatorErrors(req);
   const { id } = req.params;
-  const doc = await checkIfExist(id, TestModel);
+  const doc = await checkIfExist({ value: id }, TestModel);
   const deleted = await TestModel.findByIdAndDelete(doc._id);
   res.status(200).json({ msg: 'Doc deleted successfully', doc: deleted });
 };

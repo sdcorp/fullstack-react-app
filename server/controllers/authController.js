@@ -1,18 +1,17 @@
 const mongoose = require('mongoose');
 const passport = require('passport');
+const HttpError = require('http-errors');
 
 const User = mongoose.model('User');
 const { catchExpressValidatorErrors } = require('../helpers/customValidators');
 
-exports.register = async (req, res, next) => {
+exports.register = async (req, res) => {
   catchExpressValidatorErrors(req);
   const { email, password } = req.body;
   //  check if user exists
-  let user = await User.findOne({ email });
+  let user = await User.findUserByEmail(email);
   if (user) {
-    const err = new Error('User with this email already exists');
-    err.status = 400;
-    throw err;
+    throw new HttpError[409]('User with this email already exists');
   }
   // create user instanse
   user = new User({ email, password });
@@ -35,9 +34,7 @@ exports.login = (req, res, next) => {
     if (passportUser) {
       return res.json({ user: passportUser.toAuthJSON() });
     }
-    const loginError = new Error('Email or password are wrong');
-    loginError.status = 401;
-    throw loginError;
+    throw new HttpError[401]('Email or password are wrong');
   })(req, res, next);
 };
 
@@ -49,8 +46,7 @@ exports.authorize = (req, res, next) =>
     if (passportUser) {
       return next();
     }
-    const accessError = new Error('Access denied');
-    accessError.status = 401;
+    const accessError = new HttpError[401]('Access denied');
     accessError.data = info;
     throw accessError;
   })(req, res, next);
@@ -63,8 +59,17 @@ exports.checkToken = (req, res, next) =>
     if (passportUser) {
       return res.status(200).json({ authenticated: true });
     }
-    const accessError = new Error('Invalid token');
-    accessError.status = 401;
+    const accessError = new HttpError[401]('Invalid token');
     accessError.data = info;
     throw accessError;
   })(req, res, next);
+
+exports.checkExistEmail = async (req, res) => {
+  catchExpressValidatorErrors(req);
+  const { email } = req.query;
+  const user = await User.findUserByEmail(email);
+  if (user) {
+    throw new HttpError[409]('User with this email already exists');
+  }
+  res.sendStatus(200);
+};

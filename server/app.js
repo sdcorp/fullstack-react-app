@@ -36,13 +36,13 @@ app.use(passport.session());
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/test', testRoutes);
 
-// If that above routes didnt work, we 404 them and forward to error handler
-app.use(errorHandlers.notFound);
-
 // All remaining requests return the React app, so it can handle routing.
 app.use('*', (req, res) => {
   res.sendFile(path.resolve(__dirname, '../client/build', 'index.html'));
 });
+
+// If that above routes didnt work, we 404 them and forward to error handler
+app.use(errorHandlers.notFound);
 
 // Some of DB errors
 app.use(errorHandlers.dbValidationErrors);

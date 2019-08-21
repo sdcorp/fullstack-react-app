@@ -6,10 +6,10 @@
   },
   "servers": [
     {
-      "url": "http://localhost:8000/api/v1"
+      "url": "https://fullstack-reactapp.herokuapp.com/api/v1"
     },
     {
-      "url": "https://fullstack-reactapp.herokuapp.com/api/v1"
+      "url": "http://localhost:8000/api/v1"
     }
   ],
   "tags": [
@@ -45,6 +45,26 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/User"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "if email already taken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
                 }
               }
             }
@@ -86,7 +106,23 @@
           },
           "401": {
             "description": "Invalid email/password supplied",
-            "content": {}
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -111,6 +147,62 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Invalid token",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [{ "bearerAuth": [] }]
+      }
+    },
+    "/auth/checkExistEmail": {
+      "get": {
+        "tags": ["Authorization"],
+        "summary": "Check if email already taken",
+        "description": "WARNING!!! Its no safety, providing this route. Hacker can use this route for collect your active users emails and send spam to them.",
+        "operationId": "checkEmailExist",
+        "parameters": [
+          {
+            "name": "email",
+            "in": "query",
+            "description": "email that need checked",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "successful operation",
+            "content": {}
+          },
+          "409": {
+            "description": "if email already taken",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
           }
         }
       }
@@ -119,7 +211,6 @@
       "get": {
         "tags": ["Test"],
         "summary": "Get all documents",
-        "description": "This can only be done by the logged in user.",
         "operationId": "getAllDocuments",
         "responses": {
           "200": {
@@ -140,7 +231,6 @@
       "post": {
         "tags": ["Test"],
         "summary": "Create document",
-        "description": "This can only be done by the logged in user.",
         "operationId": "createDocument",
         "requestBody": {
           "description": "Created document object",
@@ -165,7 +255,6 @@
       "get": {
         "tags": ["Test"],
         "summary": "Get single document",
-        "description": "This can only be done by the logged in user.",
         "operationId": "getSingleDocument",
         "parameters": [
           {
@@ -228,13 +317,19 @@
                 }
               }
             }
+          },
+          "401": {
+            "description": "Access denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
           }
         },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
+        "security": [{ "bearerAuth": [] }]
       },
       "delete": {
         "tags": ["Test"],
@@ -256,13 +351,19 @@
           "200": {
             "description": "successful operation",
             "content": {}
+          },
+          "401": {
+            "description": "Access denied",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ApiResponse"
+                }
+              }
+            }
           }
         },
-        "security": [
-          {
-            "bearerAuth": []
-          }
-        ]
+        "security": [{ "bearerAuth": [] }]
       }
     }
   },
@@ -308,15 +409,15 @@
       "ApiResponse": {
         "type": "object",
         "properties": {
-          "code": {
+          "message": {
+            "type": "string"
+          },
+          "status": {
             "type": "integer",
             "format": "int32"
           },
-          "type": {
-            "type": "string"
-          },
-          "message": {
-            "type": "string"
+          "data": {
+            "type": "object"
           }
         }
       }

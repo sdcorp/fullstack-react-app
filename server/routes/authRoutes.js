@@ -1,8 +1,8 @@
 const express = require('express');
-const { body } = require('express-validator');
+const { body, query } = require('express-validator');
 
 const { catchAsyncErrors } = require('../helpers/errorHandlers');
-const { login, register, checkToken } = require('../controllers/authController');
+const { login, register, checkToken, checkExistEmail } = require('../controllers/authController');
 
 const router = express.Router();
 
@@ -29,5 +29,6 @@ router.route('/login').post(
 );
 
 router.route('/checkToken').get(checkToken);
+router.route('/checkExistEmail').get([query('email').isEmail()], catchAsyncErrors(checkExistEmail));
 
 module.exports = router;

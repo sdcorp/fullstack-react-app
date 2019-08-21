@@ -22,8 +22,11 @@ const userSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// userSchema.plugin(passportLocalMongoose, { usernameField: 'email' });
 userSchema.plugin(mongodbErrorHandler);
+
+userSchema.statics.findUserByEmail = function(email) {
+  return this.findOne({ email });
+};
 
 userSchema.methods.validatePassword = function(password) {
   return bcrypt.compareSync(password, this.password);
